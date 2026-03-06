@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load report_tags %}
+{% block title %}週報入力 - {{ week_start }}{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-3">
+  <h3 class="mb-0">週報 {{ week_start }} 〜</h3>
+  <a href="/" class="btn btn-outline-secondary btn-sm">← カレンダーに戻る</a>
+</div>
+
+{% if not editable %}
+  <div class="alert alert-warning">この週は編集できません（提出期限を過ぎています）</div>
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+
+  {# Q1: プロジェクト情報 #}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-bold">Q1 現場について教えてください</div>
+    <div class="card-body">
+      <table class="table table-bordered mb-0">
+        <thead><tr><th style="width:30%">項目</th><th>回答</th></tr></thead>
+        <tbody>
+        {% for t in q1_templates %}
+          <tr>
+            <td class="fw-bold align-middle">{{ t.label }}</td>
+            <td>
+              {% if editable %}
+                <input type="text" name="q1_{{ t.label }}" class="form-control"
+                       value="{{ q1_defaults|get_item:t.label }}">
+              {% else %}
+                {{ q1_defaults|get_item:t.label }}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  {# 動的Qセクション #}
+  {% for section in sections %}
+  <div class="card mb-4">
+    <div class="card-header bg-light fw-bold">{{ section.title }}</div>
+    <div class="card-body">
+      {% if section.section_type == 'radio_matrix' %}
+        <table class="table table-bordered mb-0">
+          <thead>
+            <tr>
+              <th>項目</th>
+              {% for label in section.scale_labels %}
+                <th class="text-center">{{ label }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+          {% for item in section.items.all %}
+            <tr>
+              <td class="align-middle">{{ item.label }}</td>
+              {% with section_answers=current_answers|get_item:section.id %}
+              {% for label in section.scale_labels %}
+                <td class="text-center align-middle">
+                  {% if editable %}
+                    <input type="radio" name="answer_{{ section.id }}_{{ item.id }}"
+                           value="{{ label }}"
+                           {% if section_answers|get_item:item.id == label %}checked{% endif %}>
+                  {% else %}
+                    {% if section_answers|get_item:item.id == label %}
+                      <span class="text-success fw-bold">○</span>
+                    {% endif %}
+                  {% endif %}
+                </td>
+              {% endfor %}
+              {% endwith %}
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      {% elif section.section_type == 'select' %}
+        {% with section_answers=current_answers|get_item:section.id %}
+        <select name="answer_{{ section.id }}" class="form-select" {% if not editable %}disabled{% endif %}>
+          <option value="">選択してください</option>
+          {% for label in section.scale_labels %}
+            <option value="{{ label }}"
+              {% if section_answers|get_item:None == label %}selected{% endif %}>
+              {{ label }}
+            </option>
+          {% endfor %}
+        </select>
+        {% endwith %}
+      {% else %}
+        {% with section_answers=current_answers|get_item:section.id %}
+        <textarea name="answer_{{ section.id }}" class="form-control" rows="3"
+                  placeholder="{{ section.placeholder }}"
+                  {% if not editable %}readonly{% endif %}>{{ section_answers|get_item:None }}</textarea>
+        {% endwith %}
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+
+  {% if editable %}
+  <div class="d-flex gap-2 mb-4">
+    <button type="submit" name="action" value="draft" class="btn btn-outline-secondary">下書き保存</button>
+    <button type="submit" name="action" value="submit" class="btn btn-primary">提出する</button>
+  </div>
+  {% endif %}
+</form>
+{% endblock %}
