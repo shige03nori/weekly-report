@@ -21,6 +21,11 @@
               <div class="alert alert-danger">{{ message }}</div>
             {% endfor %}
           {% endif %}
+          {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+          {% endif %}
           <button type="submit" class="btn btn-primary w-100">ログイン</button>
         </form>
       </div>

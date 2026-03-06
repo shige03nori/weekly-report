@@ -14,6 +14,7 @@ def user(db):
     )
 
 
+@pytest.mark.django_db
 def test_login_page_get(client):
     response = client.get(reverse('login'))
     assert response.status_code == 200
