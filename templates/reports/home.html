@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% block title %}ホーム - 週報システム{% endblock %}
+{% block content %}
+<div class="d-flex align-items-center mb-3 gap-3">
+  <a href="?year={{ prev_year }}&month={{ prev_month }}" class="btn btn-outline-secondary btn-sm">&#9664; 前月</a>
+  <h4 class="mb-0">{{ year }}年 {{ month }}月</h4>
+  <a href="?year={{ next_year }}&month={{ next_month }}" class="btn btn-outline-secondary btn-sm">翌月 &#9654;</a>
+  <a href="?year={{ current_week.year }}&month={{ current_week.month }}" class="btn btn-outline-primary btn-sm ms-2">今月</a>
+</div>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-3">
+{% for week in weeks %}
+  {% if week.status == 'submitted' %}
+    <div class="col">
+      <a href="/report/{{ week.week_start }}/" class="text-decoration-none">
+        <div class="card border-success bg-success bg-opacity-10 h-100">
+          <div class="card-body text-center">
+            <div class="fw-bold text-success">{{ week.week_start }} 〜</div>
+            <small class="text-success">&#10003; 提出済み</small>
+          </div>
+        </div>
+      </a>
+    </div>
+  {% elif week.status == 'editable' %}
+    <div class="col">
+      <a href="/report/{{ week.week_start }}/" class="text-decoration-none">
+        <div class="card border-warning bg-warning bg-opacity-10 h-100 {% if week.week_start == current_week %}border-3{% endif %}">
+          <div class="card-body text-center">
+            <div class="fw-bold">{{ week.week_start }} 〜</div>
+            <small class="text-danger">未提出</small>
+            {% if week.week_start == current_week %}
+              <div><span class="badge bg-primary mt-1">今週</span></div>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+    </div>
+  {% elif week.status == 'past' %}
+    <div class="col">
+      <div class="card border-danger bg-danger bg-opacity-10 h-100">
+        <div class="card-body text-center">
+          <div class="fw-bold text-muted">{{ week.week_start }} 〜</div>
+          <small class="text-danger">提出期限切れ</small>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="col">
+      <div class="card bg-light border-0 h-100">
+        <div class="card-body text-center">
+          <div class="text-muted">{{ week.week_start }} 〜</div>
+          <small class="text-muted">まだ提出できません</small>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endfor %}
+</div>
+
+<div class="mt-3 d-flex gap-3 small">
+  <span><span class="badge bg-success">&#9632;</span> 提出済み</span>
+  <span><span class="badge bg-warning text-dark">&#9632;</span> 未提出（提出可能）</span>
+  <span><span class="badge bg-danger">&#9632;</span> 期限切れ</span>
+  <span><span class="badge bg-secondary">&#9632;</span> まだ提出不可</span>
+</div>
+{% endblock %}

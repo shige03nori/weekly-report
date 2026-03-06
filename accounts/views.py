@@ -8,11 +8,11 @@ from django.contrib import messages
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('/')
+        return redirect('home')
     form = AuthenticationForm(request, data=request.POST or None)
     if request.method == 'POST' and form.is_valid():
         login(request, form.get_user())
-        return redirect(request.GET.get('next', '/'))
+        return redirect(request.GET.get('next', 'home'))
     elif request.method == 'POST':
         messages.error(request, 'メールアドレスまたはパスワードが正しくありません')
     return render(request, 'accounts/login.html', {'form': form})
@@ -31,5 +31,5 @@ def password_change_view(request):
         user = form.save()
         update_session_auth_hash(request, user)
         messages.success(request, 'パスワードを変更しました')
-        return redirect('/')
+        return redirect('home')
     return render(request, 'accounts/password_change.html', {'form': form})
