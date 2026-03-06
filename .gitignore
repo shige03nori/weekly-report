@@ -4,3 +4,7 @@ __pycache__/
 .env
 db.sqlite3
 staticfiles/
+.pytest_cache/
+*.pyo
+.coverage
+*.egg-info/
