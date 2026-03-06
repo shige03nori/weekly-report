@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}ログイン - 週報システム{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card shadow-sm mt-5">
+      <div class="card-body p-4">
+        <h4 class="card-title text-center mb-4">週報システム ログイン</h4>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">メールアドレス</label>
+            <input type="email" name="username" class="form-control" required autofocus>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">パスワード</label>
+            <input type="password" name="password" class="form-control" required>
+          </div>
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+          <button type="submit" class="btn btn-primary w-100">ログイン</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
