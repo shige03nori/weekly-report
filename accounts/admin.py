@@ -12,8 +12,9 @@ class UserAdmin(BaseUserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('個人情報', {'fields': ('name',)}),
-        ('権限', {'fields': ('is_admin', 'is_active', 'is_staff', 'is_superuser')}),
+        ('権限', {'fields': ('is_admin', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
     )
+    filter_horizontal = ('groups', 'user_permissions')
     add_fieldsets = (
         (None, {
             'classes': ('wide',),

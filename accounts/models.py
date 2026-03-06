@@ -24,7 +24,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     name = models.CharField(max_length=100, verbose_name='氏名')
     is_admin = models.BooleanField(default=False, verbose_name='管理者')
     is_active = models.BooleanField(default=True, verbose_name='有効')
-    is_staff = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False, verbose_name='スタッフ')
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()

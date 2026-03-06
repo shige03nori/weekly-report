@@ -26,6 +26,7 @@ def test_create_admin_user():
     )
     assert user.is_admin is True
     assert user.is_staff is True
+    assert user.is_superuser is True
 
 
 @pytest.mark.django_db
