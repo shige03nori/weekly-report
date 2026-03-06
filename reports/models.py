@@ -1,5 +1,6 @@
 from django.db import models
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 
 class WeeklyReport(models.Model):
@@ -21,6 +22,10 @@ class WeeklyReport(models.Model):
     def __str__(self):
         return f'{self.user.name} - {self.week_start}週'
 
+    def clean(self):
+        if self.week_start and self.week_start.weekday() != 0:
+            raise ValidationError({'week_start': '週開始日は月曜日を指定してください'})
+
     @property
     def is_submitted(self):
         return self.submitted_at is not None
@@ -37,6 +42,9 @@ class Q1ProjectField(models.Model):
         ordering = ['order']
         verbose_name = 'Q1フィールド'
         verbose_name_plural = 'Q1フィールド'
+
+    def __str__(self):
+        return f'{self.label}: {self.value[:20]}'
 
 
 class Q1FieldTemplate(models.Model):
@@ -96,10 +104,14 @@ class Answer(models.Model):
     report = models.ForeignKey(WeeklyReport, on_delete=models.CASCADE, related_name='answers')
     question_section = models.ForeignKey(QuestionSection, on_delete=models.CASCADE)
     question_item = models.ForeignKey(
-        QuestionItem, on_delete=models.CASCADE, null=True, blank=True
+        QuestionItem, on_delete=models.SET_NULL, null=True, blank=True
     )
     value = models.TextField(blank=True, verbose_name='回答値')
 
     class Meta:
         verbose_name = '回答'
         verbose_name_plural = '回答'
+        unique_together = ('report', 'question_section', 'question_item')
+
+    def __str__(self):
+        return f'{self.report} - {self.question_section.title} - {self.value[:20]}'

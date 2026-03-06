@@ -25,3 +25,9 @@ class WeeklyReportAdmin(admin.ModelAdmin):
     list_display = ('user', 'week_start', 'submitted_at')
     list_filter = ('week_start',)
     search_fields = ('user__name', 'user__email')
+
+
+@admin.register(Answer)
+class AnswerAdmin(admin.ModelAdmin):
+    list_display = ('report', 'question_section', 'question_item', 'value')
+    list_filter = ('question_section',)
