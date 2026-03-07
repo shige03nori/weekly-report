@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}質問管理{% endblock %}
+{% block content %}
+<h3>質問セクション管理</h3>
+
+<h5 class="mt-4">Q1 フィールドテンプレート</h5>
+<table class="table table-bordered">
+  <thead><tr><th>順序</th><th>項目名</th><th>有効</th></tr></thead>
+  <tbody>
+  {% for t in q1_templates %}
+    <tr><td>{{ t.order }}</td><td>{{ t.label }}</td><td>{% if t.is_active %}✓{% endif %}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h5 class="mt-4">動的質問セクション一覧</h5>
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="reorder">
+  <table class="table table-bordered">
+    <thead><tr><th>順序</th><th>タイトル</th><th>タイプ</th><th>有効</th><th>操作</th></tr></thead>
+    <tbody>
+    {% for s in sections %}
+      <tr>
+        <td><input type="number" name="order_{{ s.id }}" value="{{ s.order }}" class="form-control form-control-sm" style="width:70px;"></td>
+        <td>{{ s.title }}</td>
+        <td>{{ s.get_section_type_display }}</td>
+        <td>{% if s.is_active %}<span class="badge bg-success">有効</span>{% else %}<span class="badge bg-secondary">無効</span>{% endif %}</td>
+        <td>
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle_active">
+            <input type="hidden" name="section_id" value="{{ s.id }}">
+            <button class="btn btn-sm btn-outline-secondary">切替</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <button type="submit" class="btn btn-primary">順序を保存</button>
+</form>
+
+<h5 class="mt-4">新しいセクションを追加</h5>
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="add_section">
+  {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label">{{ field.label }}</label>
+      {{ field }}
+    </div>
+  {% endfor %}
+  <button type="submit" class="btn btn-success">追加</button>
+</form>
+{% endblock %}

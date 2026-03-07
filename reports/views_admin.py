@@ -1,9 +1,10 @@
 from datetime import date, timedelta
 from functools import wraps
+from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseForbidden
-from django.shortcuts import render
-from .models import WeeklyReport
+from django.shortcuts import redirect, render
+from .models import WeeklyReport, QuestionSection, Q1FieldTemplate
 from .utils import get_week_start, today as get_today
 
 User = get_user_model()
@@ -82,3 +83,60 @@ def admin_report_view(request, user_id, week_start_str):
         'answers': answers,
         'target_user': target_user,
     })
+
+
+@admin_required
+def admin_questions_view(request):
+    if request.method == 'POST':
+        from .forms_admin import QuestionSectionForm
+        action = request.POST.get('action')
+        if action == 'add_section':
+            form = QuestionSectionForm(request.POST)
+            if form.is_valid():
+                form.save()
+        elif action == 'toggle_active':
+            section_id = request.POST.get('section_id')
+            section = QuestionSection.objects.get(id=section_id)
+            section.is_active = not section.is_active
+            section.save()
+        elif action == 'reorder':
+            for key, val in request.POST.items():
+                if key.startswith('order_'):
+                    sid = key.replace('order_', '')
+                    QuestionSection.objects.filter(id=sid).update(order=int(val))
+        return redirect('admin_questions')
+
+    from .forms_admin import QuestionSectionForm
+    sections = QuestionSection.objects.all().order_by('order')
+    form = QuestionSectionForm()
+    q1_templates = Q1FieldTemplate.objects.all().order_by('order')
+    return render(request, 'reports/admin_questions.html', {
+        'sections': sections,
+        'form': form,
+        'q1_templates': q1_templates,
+    })
+
+
+@admin_required
+def admin_users_view(request):
+    from .forms_admin import UserCreateForm
+    if request.method == 'POST':
+        form = UserCreateForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'ユーザーを作成しました')
+            return redirect('admin_users')
+    else:
+        form = UserCreateForm()
+
+    users = User.objects.filter(is_active=True).order_by('name')
+    return render(request, 'reports/admin_users.html', {'users': users, 'form': form})
+
+
+@admin_required
+def admin_toggle_admin_view(request, user_id):
+    if request.method == 'POST':
+        target = User.objects.get(id=user_id)
+        target.is_admin = not target.is_admin
+        target.save()
+    return redirect('admin_users')
