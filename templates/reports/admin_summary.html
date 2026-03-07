@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}提出率集計{% endblock %}
+{% block content %}
+<h3>提出率集計</h3>
+<table class="table table-striped">
+  <thead>
+    <tr><th>氏名</th><th>提出回数</th><th>未提出回数</th><th>提出率</th></tr>
+  </thead>
+  <tbody>
+  {% for s in summary %}
+    <tr>
+      <td>{{ s.user.name }}</td>
+      <td>{{ s.submitted }}</td>
+      <td>{{ s.not_submitted }}</td>
+      <td>
+        <div class="progress" style="height:20px;">
+          <div class="progress-bar bg-success" style="width:{{ s.rate }}%">{{ s.rate }}%</div>
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

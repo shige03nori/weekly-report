@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}提出状況{% endblock %}
+{% block content %}
+<h3>提出状況一覧</h3>
+<form method="get" class="d-flex gap-2 mb-4 align-items-center">
+  <select name="week" class="form-select w-auto">
+    {% for w in week_choices %}
+      <option value="{{ w }}" {% if w == selected_week %}selected{% endif %}>{{ w }} 〜</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary">表示</button>
+</form>
+
+<h5>{{ selected_week }} 〜 の週</h5>
+<table class="table table-striped">
+  <thead><tr><th>氏名</th><th>状態</th><th>週報</th></tr></thead>
+  <tbody>
+  {% for ud in users_data %}
+    <tr>
+      <td>{{ ud.user.name }}</td>
+      <td>
+        {% if ud.submitted %}
+          <span class="badge bg-success">提出済み</span>
+        {% else %}
+          <span class="badge bg-danger">未提出</span>
+        {% endif %}
+      </td>
+      <td>
+        {% if ud.submitted %}
+          <a href="{% url 'admin_report' ud.user.id selected_week %}" class="btn btn-sm btn-outline-primary">閲覧</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

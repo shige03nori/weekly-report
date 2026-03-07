@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
@@ -152,7 +153,7 @@ def report_view(request, week_start_str):
                 )
 
         if request.POST.get('action') == 'submit':
-            report.submitted_at = datetime.now()
+            report.submitted_at = timezone.now()
             report.save()
             messages.success(request, '週報を提出しました')
         else:

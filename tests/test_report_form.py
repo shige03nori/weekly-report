@@ -1,5 +1,6 @@
 import pytest
 from datetime import date, datetime
+from django.utils import timezone
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from reports.models import (
@@ -106,7 +107,7 @@ def test_report_prefill_q1_from_previous(client, user, q1_templates):
     prev_report = WeeklyReport.objects.create(
         user=user,
         week_start=date(2026, 2, 23),
-        submitted_at=datetime(2026, 2, 23, 12, 0),
+        submitted_at=timezone.make_aware(datetime(2026, 2, 23, 12, 0)),
     )
     Q1ProjectField.objects.create(
         report=prev_report, label='プロジェクト名', value='前回のプロジェクト', order=1
@@ -124,7 +125,7 @@ def test_report_readonly_view(client, user, q1_templates, section):
     report = WeeklyReport.objects.create(
         user=user,
         week_start=date(2026, 2, 9),  # 4週前 = 編集不可
-        submitted_at=datetime(2026, 2, 9, 12, 0),
+        submitted_at=timezone.make_aware(datetime(2026, 2, 9, 12, 0)),
     )
     client.login(username='u@test.com', password='pass')
     response = client.get(reverse('report_readonly', args=['2026-02-09']))
