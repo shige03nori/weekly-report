@@ -1,0 +1,16 @@
+[Unit]
+Description=Gunicorn daemon for weekly-report
+After=network.target
+
+[Service]
+User=ec2-user
+WorkingDirectory=/home/ec2-user/weekly-report
+EnvironmentFile=/home/ec2-user/weekly-report/.env
+ExecStart=/home/ec2-user/weekly-report/venv/bin/gunicorn \
+    --workers 3 \
+    --bind 127.0.0.1:8000 \
+    weekly_report.wsgi:application
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
