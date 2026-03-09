@@ -3,6 +3,7 @@
 {% block content %}
 <h3>ユーザー管理</h3>
 
+<div class="table-responsive">
 <table class="table table-striped">
   <thead><tr><th>氏名</th><th>メールアドレス</th><th>管理者</th><th>操作</th></tr></thead>
   <tbody>
@@ -23,6 +24,7 @@
   {% endfor %}
   </tbody>
 </table>
+</div>
 
 <h5 class="mt-4">新しいユーザーを作成</h5>
 <form method="post">

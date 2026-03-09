@@ -20,9 +20,7 @@
       --bs-table-striped-bg: #1f1f1f;
     }
 
-    body {
-      background-color: #111111;
-    }
+    body { background-color: #111111; }
 
     /* Navbar */
     .navbar {
@@ -33,6 +31,17 @@
       color: #FF7800 !important;
       font-weight: 700;
       letter-spacing: 0.03em;
+    }
+    .navbar-toggler { border-color: rgba(255,120,0,0.5); }
+    .navbar-toggler:focus { box-shadow: 0 0 0 0.15rem rgba(255,120,0,0.3); }
+    .navbar-collapse { padding-top: 0.5rem; }
+    @media (max-width: 991px) {
+      .navbar-collapse .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 0.5rem !important;
+        padding-bottom: 0.5rem;
+      }
     }
 
     /* Primary button */
@@ -69,14 +78,7 @@
     }
 
     /* Badge primary */
-    .badge.bg-primary {
-      background-color: #FF7800 !important;
-    }
-
-    /* Progress bar primary */
-    .progress-bar.bg-primary {
-      background-color: #FF7800 !important;
-    }
+    .badge.bg-primary { background-color: #FF7800 !important; }
 
     /* Calendar cards */
     .card.border-success { border-color: #198754 !important; }
@@ -90,6 +92,54 @@
       display: flex;
       align-items: center;
     }
+
+    /* Touch-friendly radio/checkbox */
+    input[type="radio"],
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    /* ===== Mobile ===== */
+    @media (max-width: 575px) {
+      /* Container */
+      .container { padding-left: 10px; padding-right: 10px; }
+
+      /* Card body */
+      .card-body { padding: 0.65rem; }
+
+      /* Q1 table: stack label above input */
+      .q1-table thead { display: none; }
+      .q1-table tr { display: block; border-bottom: 1px solid #2a2a2a; padding: 6px 0; }
+      .q1-table td { display: block; border: none !important; padding: 2px 0; width: 100% !important; }
+      .q1-table td.fw-bold { color: #aaa; font-size: 0.82rem; padding-bottom: 2px; }
+      .q1-table .form-control { margin-top: 0; }
+
+      /* Radio matrix: horizontal scroll + no header wrap */
+      .radio-matrix-table th {
+        white-space: nowrap;
+        font-size: 0.78rem;
+        padding: 6px 8px;
+      }
+      .radio-matrix-table td {
+        padding: 8px 6px;
+      }
+      .radio-matrix-table input[type="radio"] {
+        width: 22px;
+        height: 22px;
+      }
+
+      /* Form submit buttons: full width */
+      .form-submit-buttons { flex-direction: column; }
+      .form-submit-buttons .btn { width: 100%; }
+
+      /* Page heading area wrap */
+      .page-heading { flex-wrap: wrap; gap: 0.5rem !important; }
+
+      /* Admin tables: smaller font */
+      .table { font-size: 0.85rem; }
+    }
   </style>
 </head>
 <body>
@@ -97,24 +147,29 @@
 <nav class="navbar navbar-expand-lg navbar-dark">
   <div class="container">
     <a class="navbar-brand" href="/">週報システム</a>
-    <div class="ms-auto d-flex align-items-center gap-3">
-      <span class="text-white-50">{{ user.name }}</span>
-      {% if user.is_admin %}
-        {% url 'admin_status' as admin_url %}
-        {% if admin_url %}
-          <a class="btn btn-outline-primary btn-sm" href="{{ admin_url }}">管理者画面</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="メニュー">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <span class="text-white-50 small">{{ user.name }}</span>
+        {% if user.is_admin %}
+          {% url 'admin_status' as admin_url %}
+          {% if admin_url %}
+            <a class="btn btn-outline-primary btn-sm" href="{{ admin_url }}">管理者画面</a>
+          {% endif %}
         {% endif %}
-      {% endif %}
-      <a class="btn btn-outline-light btn-sm" href="{% url 'password_change' %}">PW変更</a>
-      <form method="post" action="{% url 'logout' %}" class="d-inline">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-outline-light btn-sm">ログアウト</button>
-      </form>
+        <a class="btn btn-outline-light btn-sm" href="{% url 'password_change' %}">PW変更</a>
+        <form method="post" action="{% url 'logout' %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-light btn-sm">ログアウト</button>
+        </form>
+      </div>
     </div>
   </div>
 </nav>
 {% endif %}
-<div class="container mt-4">
+<div class="container mt-3">
   {% for message in messages %}
     <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
       {{ message }}

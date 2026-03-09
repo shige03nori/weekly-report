@@ -18,7 +18,7 @@
   <div class="card mb-4">
     <div class="card-header bg-light fw-bold">Q1 現場について教えてください</div>
     <div class="card-body">
-      <table class="table table-bordered mb-0">
+      <table class="table table-bordered mb-0 q1-table">
         <thead><tr><th style="width:30%">項目</th><th>回答</th></tr></thead>
         <tbody>
         {% for t in q1_templates %}
@@ -45,7 +45,8 @@
     <div class="card-header bg-light fw-bold">{{ section.title }}</div>
     <div class="card-body">
       {% if section.section_type == 'radio_matrix' %}
-        <table class="table table-bordered mb-0">
+        <div class="table-responsive">
+        <table class="table table-bordered mb-0 radio-matrix-table">
           <thead>
             <tr>
               <th>項目</th>
@@ -77,6 +78,7 @@
           {% endfor %}
           </tbody>
         </table>
+        </div>
       {% elif section.section_type == 'select' %}
         {% with section_answers=current_answers|get_item:section.id %}
         <select name="answer_{{ section.id }}" class="form-select" {% if not editable %}disabled{% endif %}>
@@ -101,7 +103,7 @@
   {% endfor %}
 
   {% if editable %}
-  <div class="d-flex gap-2 mb-4">
+  <div class="d-flex gap-2 mb-4 form-submit-buttons">
     <button type="submit" name="action" value="draft" class="btn btn-outline-secondary">下書き保存</button>
     <button type="submit" name="action" value="submit" class="btn btn-primary">提出する</button>
   </div>

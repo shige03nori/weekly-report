@@ -4,6 +4,7 @@
 <h3>質問セクション管理</h3>
 
 <h5 class="mt-4">Q1 フィールドテンプレート</h5>
+<div class="table-responsive">
 <table class="table table-bordered">
   <thead><tr><th>順序</th><th>項目名</th><th>有効</th></tr></thead>
   <tbody>
@@ -12,11 +13,13 @@
   {% endfor %}
   </tbody>
 </table>
+</div>
 
 <h5 class="mt-4">動的質問セクション一覧</h5>
 <form method="post">
   {% csrf_token %}
   <input type="hidden" name="action" value="reorder">
+  <div class="table-responsive">
   <table class="table table-bordered">
     <thead><tr><th>順序</th><th>タイトル</th><th>タイプ</th><th>有効</th><th>操作</th></tr></thead>
     <tbody>
@@ -38,7 +41,8 @@
     {% endfor %}
     </tbody>
   </table>
-  <button type="submit" class="btn btn-primary">順序を保存</button>
+  </div>
+  <button type="submit" class="btn btn-primary mt-2">順序を保存</button>
 </form>
 
 <h5 class="mt-4">新しいセクションを追加</h5>
