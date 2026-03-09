@@ -5,7 +5,7 @@
 <form method="get" class="d-flex gap-2 mb-4 align-items-center">
   <select name="week" class="form-select w-auto">
     {% for w in week_choices %}
-      <option value="{{ w }}" {% if w == selected_week %}selected{% endif %}>{{ w }} 〜</option>
+      <option value="{{ w|date:'Y-m-d' }}" {% if w == selected_week %}selected{% endif %}>{{ w }} 〜</option>
     {% endfor %}
   </select>
   <button class="btn btn-primary">表示</button>
@@ -27,7 +27,7 @@
       </td>
       <td>
         {% if ud.submitted %}
-          <a href="{% url 'admin_report' ud.user.id selected_week %}" class="btn btn-sm btn-outline-primary">閲覧</a>
+          <a href="{% url 'admin_report' ud.user.id selected_week|date:'Y-m-d' %}" class="btn btn-sm btn-outline-primary">閲覧</a>
         {% endif %}
       </td>
     </tr>

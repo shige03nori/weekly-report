@@ -72,15 +72,20 @@ def admin_report_view(request, user_id, week_start_str):
     week_start = date.fromisoformat(week_start_str)
     report = WeeklyReport.objects.get(user=target_user, week_start=week_start)
     sections = QuestionSection.objects.filter(is_active=True)
-    answers = {
-        (a.question_section_id, a.question_item_id): a.value
-        for a in report.answers.all()
-    }
+    q1_fields = report.q1_fields.all()
+    current_answers = {}
+    for a in report.answers.all():
+        sid = a.question_section_id
+        iid = a.question_item_id
+        if sid not in current_answers:
+            current_answers[sid] = {}
+        current_answers[sid][iid] = a.value
     return render(request, 'reports/report_view.html', {
         'report': report,
         'week_start': week_start,
         'sections': sections,
-        'answers': answers,
+        'q1_fields': q1_fields,
+        'current_answers': current_answers,
         'target_user': target_user,
     })
 

@@ -12,7 +12,7 @@
 {% for week in weeks %}
   {% if week.status == 'submitted' %}
     <div class="col">
-      <a href="/report/{{ week.week_start }}/" class="text-decoration-none">
+      <a href="/report/{{ week.week_start|date:"Y-m-d" }}/" class="text-decoration-none">
         <div class="card border-success bg-success bg-opacity-10 h-100">
           <div class="card-body text-center">
             <div class="fw-bold text-success">{{ week.week_start }} 〜</div>
@@ -23,7 +23,7 @@
     </div>
   {% elif week.status == 'editable' %}
     <div class="col">
-      <a href="/report/{{ week.week_start }}/" class="text-decoration-none">
+      <a href="/report/{{ week.week_start|date:"Y-m-d" }}/" class="text-decoration-none">
         <div class="card border-warning bg-warning bg-opacity-10 h-100 {% if week.week_start == current_week %}border-3{% endif %}">
           <div class="card-body text-center">
             <div class="fw-bold">{{ week.week_start }} 〜</div>
