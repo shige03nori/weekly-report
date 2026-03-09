@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block content %}
+<nav class="nav nav-pills mb-4 flex-wrap gap-1">
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_status' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
+     href="{% url 'admin_status' %}">週次</a>
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_monthly' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
+     href="{% url 'admin_monthly' %}">月次</a>
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_yearly' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
+     href="{% url 'admin_yearly' %}">年次</a>
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_summary' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
+     href="{% url 'admin_summary' %}">集計</a>
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_questions' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
+     href="{% url 'admin_questions' %}">質問管理</a>
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_users' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
+     href="{% url 'admin_users' %}">ユーザー管理</a>
+</nav>
+{% block admin_content %}{% endblock %}
+{% endblock %}

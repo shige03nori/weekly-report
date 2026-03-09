@@ -145,3 +145,93 @@ def admin_toggle_admin_view(request, user_id):
         target.is_admin = not target.is_admin
         target.save()
     return redirect('admin_users')
+
+
+@admin_required
+def admin_monthly_view(request):
+    today = get_today()
+    year = int(request.GET.get('year', today.year))
+    month = int(request.GET.get('month', today.month))
+
+    # その月に含まれる週を計算
+    first_day = date(year, month, 1)
+    last_day = date(year, month + 1, 1) - timedelta(days=1) if month < 12 else date(year + 1, 1, 1) - timedelta(days=1)
+    week_start = get_week_start(first_day)
+    weeks = []
+    while week_start <= last_day:
+        weeks.append(week_start)
+        week_start += timedelta(weeks=1)
+
+    users = User.objects.filter(is_active=True, is_admin=False).order_by('name')
+
+    submitted_set = set(
+        WeeklyReport.objects.filter(
+            week_start__in=weeks,
+            submitted_at__isnull=False,
+        ).values_list('user_id', 'week_start')
+    )
+
+    matrix = []
+    for user in users:
+        cells = [(w, (user.id, w) in submitted_set) for w in weeks]
+        submitted_count = sum(1 for _, ok in cells if ok)
+        matrix.append({'user': user, 'cells': cells, 'submitted': submitted_count, 'total': len(weeks)})
+
+    # 年月セレクタ用
+    year_choices = list(range(today.year - 2, today.year + 1))
+    month_choices = list(range(1, 13))
+
+    return render(request, 'reports/admin_monthly.html', {
+        'matrix': matrix,
+        'weeks': weeks,
+        'year': year,
+        'month': month,
+        'year_choices': year_choices,
+        'month_choices': month_choices,
+    })
+
+
+@admin_required
+def admin_yearly_view(request):
+    today = get_today()
+    year = int(request.GET.get('year', today.year))
+
+    # その年の全週を計算（1/1を含む週〜12/31を含む週）
+    first_day = date(year, 1, 1)
+    last_day = date(year, 12, 31)
+    week_start = get_week_start(first_day)
+    all_weeks = []
+    while week_start <= last_day:
+        all_weeks.append(week_start)
+        week_start += timedelta(weeks=1)
+
+    # 週を月ごとにグループ化（週の月曜日が属する月）
+    month_groups = {}
+    for w in all_weeks:
+        m = w.month
+        month_groups.setdefault(m, []).append(w)
+
+    users = User.objects.filter(is_active=True, is_admin=False).order_by('name')
+
+    submitted_set = set(
+        WeeklyReport.objects.filter(
+            week_start__in=all_weeks,
+            submitted_at__isnull=False,
+        ).values_list('user_id', 'week_start')
+    )
+
+    matrix = []
+    for user in users:
+        cells = [(w, (user.id, w) in submitted_set) for w in all_weeks]
+        submitted_count = sum(1 for _, ok in cells if ok)
+        matrix.append({'user': user, 'cells': cells, 'submitted': submitted_count, 'total': len(all_weeks)})
+
+    year_choices = list(range(today.year - 2, today.year + 1))
+
+    return render(request, 'reports/admin_yearly.html', {
+        'matrix': matrix,
+        'all_weeks': all_weeks,
+        'month_groups': month_groups,
+        'year': year,
+        'year_choices': year_choices,
+    })

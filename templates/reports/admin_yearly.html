@@ -1,0 +1,60 @@
+{% extends 'reports/admin_base.html' %}
+{% load report_tags %}
+{% block title %}年次提出状況{% endblock %}
+{% block admin_content %}
+<h3>年次提出状況</h3>
+
+<form method="get" class="d-flex gap-2 mb-4 align-items-center flex-wrap">
+  <select name="year" class="form-select w-auto">
+    {% for y in year_choices %}
+      <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}年</option>
+    {% endfor %}
+  </select>
+  <button class="btn btn-primary">表示</button>
+</form>
+
+<h5>{{ year }}年（全{{ all_weeks|length }}週）</h5>
+<div class="table-responsive">
+  <table class="table table-bordered text-center align-middle" style="table-layout: fixed;">
+    <thead>
+      {# 月ヘッダー行 #}
+      <tr>
+        <th style="min-width:120px;" rowspan="2" class="text-start align-middle">氏名</th>
+        {% for month, mweeks in month_groups.items %}
+          <th colspan="{{ mweeks|length }}" class="text-center" style="min-width:{{ mweeks|length|multiply:36 }}px;">
+            {{ month }}月
+          </th>
+        {% endfor %}
+        <th rowspan="2" style="min-width:60px;" class="align-middle">合計</th>
+      </tr>
+      {# 週ヘッダー行 #}
+      <tr>
+        {% for w in all_weeks %}
+          <th style="min-width:36px; font-size:0.7rem; padding:2px;">{{ w|date:"n/j" }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in matrix %}
+        <tr>
+          <td class="text-start fw-bold">{{ row.user.name }}</td>
+          {% for week, submitted in row.cells %}
+            <td style="padding:3px;">
+              {% if submitted %}
+                <span class="text-success fw-bold">✓</span>
+              {% else %}
+                <span class="text-muted" style="font-size:0.75rem;">✗</span>
+              {% endif %}
+            </td>
+          {% endfor %}
+          <td class="fw-bold {% if row.submitted == row.total %}text-success{% elif row.submitted == 0 %}text-danger{% else %}text-warning{% endif %}">
+            {{ row.submitted }}/{{ row.total }}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="100" class="text-center text-muted">ユーザーがいません</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
