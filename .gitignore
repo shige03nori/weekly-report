@@ -8,3 +8,5 @@ staticfiles/
 *.pyo
 .coverage
 *.egg-info/
+.playwright-mcp/
+*.png
