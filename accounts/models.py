@@ -22,6 +22,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, verbose_name='メールアドレス')
     name = models.CharField(max_length=100, verbose_name='氏名')
+    department = models.CharField(max_length=100, blank=True, default='', verbose_name='部署')
     is_admin = models.BooleanField(default=False, verbose_name='管理者')
     is_active = models.BooleanField(default=True, verbose_name='有効')
     is_staff = models.BooleanField(default=False, verbose_name='スタッフ')

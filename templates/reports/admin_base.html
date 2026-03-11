@@ -1,5 +1,27 @@
 {% extends 'base.html' %}
+{% block extra_head %}
+<style>
+  /* 管理者画面: テーブルは横線のみ、縦線なし */
+  .admin-area .table > :not(caption) > * > * {
+    border-left-width: 0;
+    border-right-width: 0;
+    border-color: #444;
+  }
+  .admin-area .table-bordered > :not(caption) > * {
+    border-width: 1px 0;
+    border-color: #444;
+  }
+  .admin-area .table-bordered {
+    border-left: none;
+    border-right: none;
+  }
+  .admin-area .table {
+    --bs-table-border-color: #444;
+  }
+</style>
+{% endblock %}
 {% block content %}
+<div class="admin-area">
 <nav class="nav nav-pills mb-4 flex-wrap gap-1">
   <a class="nav-link {% if request.resolver_match.url_name == 'admin_status' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
      href="{% url 'admin_status' %}">週次</a>
@@ -15,4 +37,5 @@
      href="{% url 'admin_users' %}">ユーザー管理</a>
 </nav>
 {% block admin_content %}{% endblock %}
+</div>
 {% endblock %}

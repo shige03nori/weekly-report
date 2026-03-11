@@ -1,0 +1,6 @@
+<select name="department" class="form-select w-auto">
+  <option value="">部署：全て</option>
+  {% for d in departments %}
+    <option value="{{ d }}" {% if d == selected_dept %}selected{% endif %}>{{ d|default:"（未設定）" }}</option>
+  {% endfor %}
+</select>
