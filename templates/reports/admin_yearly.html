@@ -7,37 +7,29 @@
 <form method="get" class="d-flex gap-2 mb-4 align-items-center flex-wrap">
   <select name="year" class="form-select w-auto">
     {% for y in year_choices %}
-      <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}年</option>
+      <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}年度</option>
     {% endfor %}
   </select>
+  {% include 'reports/_dept_filter.html' %}
   <button class="btn btn-primary">表示</button>
 </form>
 
-<h5>{{ year }}年（全{{ all_weeks|length }}週）</h5>
+<h5>{{ year }}年度（全{{ all_weeks|length }}週）</h5>
 <div class="table-responsive">
-  <table class="table table-bordered text-center align-middle" style="table-layout: fixed;">
+  <table class="table table-bordered text-center align-middle" style="table-layout: auto;">
     <thead>
-      {# 月ヘッダー行 #}
-      <tr>
-        <th style="min-width:120px;" rowspan="2" class="text-start align-middle">氏名</th>
-        {% for month, mweeks in month_groups.items %}
-          <th colspan="{{ mweeks|length }}" class="text-center" style="min-width:{{ mweeks|length|multiply:36 }}px;">
-            {{ month }}月
-          </th>
-        {% endfor %}
-        <th rowspan="2" style="min-width:60px;" class="align-middle">合計</th>
-      </tr>
-      {# 週ヘッダー行 #}
-      <tr>
+      <tr style="height:2rem;">
+        <th style="min-width:130px; position:sticky; left:0; z-index:2; background:var(--bs-body-bg); padding:2px 6px; vertical-align:middle;" class="text-start">氏名</th>
         {% for w in all_weeks %}
-          <th style="min-width:36px; font-size:0.7rem; padding:2px;">{{ w|date:"n/j" }}</th>
+          <th style="min-width:36px; font-size:0.7rem; padding:2px; vertical-align:middle;">{{ w|date:"n/j" }}</th>
         {% endfor %}
+        <th style="min-width:60px; padding:2px; vertical-align:middle;">合計</th>
       </tr>
     </thead>
     <tbody>
       {% for row in matrix %}
         <tr>
-          <td class="text-start fw-bold">{{ row.user.name }}</td>
+          <td class="text-start fw-bold" style="position:sticky; left:0; z-index:1; background:var(--bs-body-bg);">{{ row.user.name }}</td>
           {% for week, submitted in row.cells %}
             <td style="padding:3px;">
               {% if submitted %}

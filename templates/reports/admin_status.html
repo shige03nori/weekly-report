@@ -2,18 +2,19 @@
 {% block title %}提出状況{% endblock %}
 {% block admin_content %}
 <h3>提出状況一覧</h3>
-<form method="get" class="d-flex gap-2 mb-4 align-items-center">
+<form method="get" class="d-flex gap-2 mb-4 align-items-center flex-wrap">
   <select name="week" class="form-select w-auto">
     {% for w in week_choices %}
       <option value="{{ w|date:'Y-m-d' }}" {% if w == selected_week %}selected{% endif %}>{{ w }} 〜</option>
     {% endfor %}
   </select>
+  {% include 'reports/_dept_filter.html' %}
   <button class="btn btn-primary">表示</button>
 </form>
 
 <h5>{{ selected_week }} 〜 の週</h5>
 <div class="table-responsive">
-<table class="table table-striped">
+<table class="table table-striped align-middle">
   <thead><tr><th>氏名</th><th>状態</th><th>週報</th></tr></thead>
   <tbody>
   {% for ud in users_data %}
@@ -28,7 +29,7 @@
       </td>
       <td>
         {% if ud.submitted %}
-          <a href="{% url 'admin_report' ud.user.id selected_week|date:'Y-m-d' %}" class="btn btn-sm btn-outline-primary">閲覧</a>
+          <a href="{% url 'admin_report' ud.user.id selected_week|date:'Y-m-d' %}" class="btn btn-sm btn-outline-primary py-0" style="font-size:0.8rem;">閲覧</a>
         {% endif %}
       </td>
     </tr>

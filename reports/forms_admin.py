@@ -19,7 +19,7 @@ class UserCreateForm(forms.ModelForm):
 
     class Meta:
         model = User
-        fields = ['email', 'name', 'is_admin', 'password']
+        fields = ['email', 'name', 'department', 'is_admin', 'password']
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -27,3 +27,9 @@ class UserCreateForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class UserEditForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'name', 'department', 'is_admin']

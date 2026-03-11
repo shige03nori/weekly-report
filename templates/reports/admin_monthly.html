@@ -14,6 +14,7 @@
       <option value="{{ m }}" {% if m == month %}selected{% endif %}>{{ m }}月</option>
     {% endfor %}
   </select>
+  {% include 'reports/_dept_filter.html' %}
   <button class="btn btn-primary">表示</button>
 </form>
 

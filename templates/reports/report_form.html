@@ -1,6 +1,14 @@
 {% extends 'base.html' %}
 {% load report_tags %}
 {% block title %}週報入力 - {{ week_start }}{% endblock %}
+{% block extra_head %}
+<style>
+  .form-control:not(:focus),
+  .form-select:not(:focus) {
+    border-color: #fff;
+  }
+</style>
+{% endblock %}
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-3">
   <h3 class="mb-0">週報 {{ week_start }} 〜</h3>
@@ -15,8 +23,8 @@
   {% csrf_token %}
 
   {# Q1: プロジェクト情報 #}
-  <div class="card mb-4">
-    <div class="card-header bg-light fw-bold">Q1 現場について教えてください</div>
+  <div class="card mb-4" style="border-color:#fff;">
+    <div class="card-header fw-bold" style="background:#000; color:#fff; border-color:#fff;">Q1 現場について教えてください</div>
     <div class="card-body">
       <table class="table table-bordered mb-0 q1-table">
         <thead><tr><th style="width:30%">項目</th><th>回答</th></tr></thead>
@@ -41,8 +49,8 @@
 
   {# 動的Qセクション #}
   {% for section in sections %}
-  <div class="card mb-4">
-    <div class="card-header bg-light fw-bold">{{ section.title }}</div>
+  <div class="card mb-4" style="border-color:#fff;">
+    <div class="card-header fw-bold" style="background:#000; color:#fff; border-color:#fff;">{{ section.title }}</div>
     <div class="card-body">
       {% if section.section_type == 'radio_matrix' %}
         <div class="table-responsive">

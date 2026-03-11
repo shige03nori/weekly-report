@@ -3,21 +3,52 @@
 {% block admin_content %}
 <h3>ユーザー管理</h3>
 
+{% if messages %}
+  {% for m in messages %}
+    <div class="alert alert-success py-1">{{ m }}</div>
+  {% endfor %}
+{% endif %}
+
 <div class="table-responsive">
-<table class="table table-striped">
-  <thead><tr><th>氏名</th><th>メールアドレス</th><th>管理者</th><th>操作</th></tr></thead>
+<table class="table table-striped align-middle">
+  <thead><tr><th>氏名</th><th>メールアドレス</th><th>部署</th><th>管理者</th><th>操作</th></tr></thead>
   <tbody>
   {% for u in users %}
-    <tr>
+    <tr id="row-{{ u.id }}">
       <td>{{ u.name }}</td>
       <td>{{ u.email }}</td>
+      <td>{{ u.department }}</td>
       <td>{% if u.is_admin %}<span class="badge bg-warning text-dark">管理者</span>{% endif %}</td>
       <td>
-        <form method="post" action="{% url 'admin_toggle_admin' u.id %}">
+        <button class="btn btn-sm btn-outline-primary py-0" style="font-size:0.8rem;"
+                onclick="toggleEdit({{ u.id }})">編集</button>
+      </td>
+    </tr>
+    <tr id="edit-{{ u.id }}" style="display:none; background:var(--bs-body-bg);">
+      <td colspan="5">
+        <form method="post" action="{% url 'admin_edit_user' u.id %}" class="d-flex flex-wrap gap-2 align-items-end py-2">
           {% csrf_token %}
-          <button class="btn btn-sm btn-outline-secondary">
-            {% if u.is_admin %}管理者解除{% else %}管理者にする{% endif %}
-          </button>
+          <div>
+            <label class="form-label mb-0" style="font-size:0.8rem;">氏名</label>
+            <input type="text" name="name" value="{{ u.name }}" class="form-control form-control-sm" style="width:120px;">
+          </div>
+          <div>
+            <label class="form-label mb-0" style="font-size:0.8rem;">メールアドレス</label>
+            <input type="email" name="email" value="{{ u.email }}" class="form-control form-control-sm" style="width:200px;">
+          </div>
+          <div>
+            <label class="form-label mb-0" style="font-size:0.8rem;">部署</label>
+            <input type="text" name="department" value="{{ u.department }}" class="form-control form-control-sm" style="width:130px;">
+          </div>
+          <div class="d-flex align-items-center gap-1 mt-3">
+            <input type="checkbox" name="is_admin" id="is_admin_{{ u.id }}" class="form-check-input" {% if u.is_admin %}checked{% endif %}>
+            <label for="is_admin_{{ u.id }}" class="form-check-label" style="font-size:0.8rem;">管理者</label>
+          </div>
+          <div class="mt-3 d-flex gap-1">
+            <button type="submit" class="btn btn-sm btn-primary py-0" style="font-size:0.8rem;">保存</button>
+            <button type="button" class="btn btn-sm btn-outline-secondary py-0" style="font-size:0.8rem;"
+                    onclick="toggleEdit({{ u.id }})">キャンセル</button>
+          </div>
         </form>
       </td>
     </tr>
@@ -25,6 +56,13 @@
   </tbody>
 </table>
 </div>
+
+<script>
+function toggleEdit(id) {
+  const row = document.getElementById('edit-' + id);
+  row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+</script>
 
 <h5 class="mt-4">新しいユーザーを作成</h5>
 <form method="post">

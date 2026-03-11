@@ -20,7 +20,7 @@
   {% csrf_token %}
   <input type="hidden" name="action" value="reorder">
   <div class="table-responsive">
-  <table class="table table-bordered">
+  <table class="table table-bordered align-middle">
     <thead><tr><th>順序</th><th>タイトル</th><th>タイプ</th><th>有効</th><th>操作</th></tr></thead>
     <tbody>
     {% for s in sections %}
@@ -34,7 +34,7 @@
             {% csrf_token %}
             <input type="hidden" name="action" value="toggle_active">
             <input type="hidden" name="section_id" value="{{ s.id }}">
-            <button class="btn btn-sm btn-outline-secondary">切替</button>
+            <button class="btn btn-sm btn-outline-secondary py-0" style="font-size:0.8rem;">切替</button>
           </form>
         </td>
       </tr>
