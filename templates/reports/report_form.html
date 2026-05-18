@@ -1,14 +1,7 @@
 {% extends 'base.html' %}
 {% load report_tags %}
 {% block title %}週報入力 - {{ week_start }}{% endblock %}
-{% block extra_head %}
-<style>
-  .form-control:not(:focus),
-  .form-select:not(:focus) {
-    border-color: #fff;
-  }
-</style>
-{% endblock %}
+{% block extra_head %}{% endblock %}
 {% block content %}
 <div class="d-flex align-items-center mb-3 gap-3">
   <h3 class="mb-0">週報 {{ week_start }} 〜</h3>
