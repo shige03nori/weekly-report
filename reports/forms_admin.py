@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth import get_user_model
-from .models import QuestionSection, Q1FieldTemplate
+from .models import QuestionSection, Q1FieldTemplate, OneOnOneSession, OneOnOneQuestion
 
 User = get_user_model()
 
@@ -35,9 +35,6 @@ class UserEditForm(forms.ModelForm):
         fields = ['email', 'name', 'department', 'is_admin']
 
 
-from .models import OneOnOneSession, OneOnOneQuestion
-
-
 class OneOnOneSessionForm(forms.ModelForm):
     class Meta:
         model = OneOnOneSession
@@ -55,19 +52,33 @@ class OneOnOneSessionForm(forms.ModelForm):
 
 
 class OneOnOneQuestionForm(forms.ModelForm):
+    SECTION_TITLES = {
+        1: '現場状況確認',
+        2: '技術・業務の成長確認',
+        3: 'メンタル・コンディション確認',
+        4: 'キャリア確認',
+        5: '会社への要望・改善',
+        6: '次回までのアクション',
+    }
+
+    section_number = forms.TypedChoiceField(
+        choices=[(i, str(i)) for i in range(1, 7)],
+        coerce=int,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='セクション番号',
+    )
+
     class Meta:
         model = OneOnOneQuestion
         fields = ['section_number', 'question_text', 'hint_text']
         widgets = {
-            'section_number': forms.Select(
-                choices=[(i, f'{i}') for i in range(1, 7)],
-                attrs={'class': 'form-select'},
-            ),
             'question_text': forms.TextInput(attrs={'class': 'form-control'}),
             'hint_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '任意'}),
         }
         labels = {
-            'section_number': 'セクション番号',
             'question_text': '質問文',
             'hint_text': '補足テキスト',
         }
+
+    def get_section_title(self):
+        return self.SECTION_TITLES.get(int(self.cleaned_data['section_number']), '')
