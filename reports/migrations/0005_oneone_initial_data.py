@@ -34,7 +34,16 @@ def create_initial_questions(apps, schema_editor):
 
 def reverse_initial_questions(apps, schema_editor):
     OneOnOneQuestion = apps.get_model('reports', 'OneOnOneQuestion')
-    OneOnOneQuestion.objects.all().delete()
+    seeded_texts = [
+        '最近の業務はどう？', '人間関係はどうか？', '作業量は多すぎない？',
+        'その他、困っていることある？', '今後の見通し',
+        '今勉強していることある？', '気になっている事ある？', '最近出来るようになったこと',
+        '疲れてない？', '休日リフレッシュできてる？', '会社に対して不安ある？',
+        '今後どういうエンジニアになりたい？', '将来的にリーダーやってみたい？',
+        'やってみたい企画やイベント',
+        '個人目標どう？', '来月の1on1までになにをするか？', '次回予定日',
+    ]
+    OneOnOneQuestion.objects.filter(question_text__in=seeded_texts).delete()
 
 
 class Migration(migrations.Migration):
