@@ -61,3 +61,18 @@ class OneOnOneModelTest(TestCase):
         OneOnOneAnswer.objects.create(session=session, question=q, text='')
         with self.assertRaises(ProtectedError):
             q.delete()
+
+
+class OneOnOneInitialDataTest(TestCase):
+    def test_initial_questions_count(self):
+        self.assertEqual(OneOnOneQuestion.objects.count(), 17)
+
+    def test_all_sections_present(self):
+        sections = set(OneOnOneQuestion.objects.values_list('section_number', flat=True).distinct())
+        self.assertEqual(sections, {1, 2, 3, 4, 5, 6})
+
+    def test_section1_has_5_questions(self):
+        self.assertEqual(OneOnOneQuestion.objects.filter(section_number=1).count(), 5)
+
+    def test_section6_has_3_questions(self):
+        self.assertEqual(OneOnOneQuestion.objects.filter(section_number=6).count(), 3)
