@@ -174,6 +174,7 @@ class OneOnOneAnswer(models.Model):
     text = models.TextField(blank=True, verbose_name='回答')
 
     class Meta:
+        unique_together = ('session', 'question')
         verbose_name = '1on1回答'
         verbose_name_plural = '1on1回答'
 

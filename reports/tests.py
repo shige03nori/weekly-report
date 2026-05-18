@@ -1,6 +1,7 @@
 from datetime import date
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.db.models import ProtectedError
 from .models import OneOnOneQuestion, OneOnOneSession, OneOnOneAnswer
 
 User = get_user_model()
@@ -49,7 +50,6 @@ class OneOnOneModelTest(TestCase):
         self.assertEqual(answer.text, '問題ない')
 
     def test_question_protect_on_answer_exists(self):
-        from django.db.models import ProtectedError
         q = OneOnOneQuestion.objects.create(
             section_number=1, section_title='現場状況確認',
             question_text='最近の業務はどう？', order=1
