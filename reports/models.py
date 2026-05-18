@@ -115,3 +115,67 @@ class Answer(models.Model):
 
     def __str__(self):
         return f'{self.report} - {self.question_section.title} - {self.value[:20]}'
+
+
+class OneOnOneQuestion(models.Model):
+    section_number = models.IntegerField(verbose_name='セクション番号')
+    section_title = models.CharField(max_length=100, verbose_name='セクション名')
+    question_text = models.CharField(max_length=200, verbose_name='質問文')
+    hint_text = models.CharField(max_length=200, blank=True, default='', verbose_name='補足テキスト')
+    order = models.IntegerField(default=0, verbose_name='表示順')
+    is_active = models.BooleanField(default=True, verbose_name='有効')
+
+    class Meta:
+        ordering = ['section_number', 'order']
+        verbose_name = '1on1質問'
+        verbose_name_plural = '1on1質問'
+
+    def __str__(self):
+        return f'{self.section_number}. {self.question_text}'
+
+
+class OneOnOneSession(models.Model):
+    member = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='oneone_sessions',
+        verbose_name='メンバー',
+    )
+    interviewer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='oneone_interviews',
+        verbose_name='担当管理者',
+    )
+    conducted_at = models.DateField(verbose_name='実施日')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-conducted_at']
+        verbose_name = '1on1セッション'
+        verbose_name_plural = '1on1セッション'
+
+    def __str__(self):
+        return f'{self.member.name} - {self.conducted_at}'
+
+
+class OneOnOneAnswer(models.Model):
+    session = models.ForeignKey(
+        OneOnOneSession,
+        on_delete=models.CASCADE,
+        related_name='answers',
+        verbose_name='セッション',
+    )
+    question = models.ForeignKey(
+        OneOnOneQuestion,
+        on_delete=models.PROTECT,
+        verbose_name='質問',
+    )
+    text = models.TextField(blank=True, verbose_name='回答')
+
+    class Meta:
+        verbose_name = '1on1回答'
+        verbose_name_plural = '1on1回答'
+
+    def __str__(self):
+        return f'{self.session} - {self.question.question_text[:20]}'
