@@ -238,3 +238,52 @@ class AdminOneOnOneDetailViewTest(TestCase):
             f'answer_{self.answer.id}': 'テキスト',
         })
         self.assertRedirects(response, f'/mgmt/oneone/{self.session.id}/')
+
+
+class MemberOneOnOneViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin5@test.com', password='pass', name='Admin5', is_admin=True
+        )
+        self.member = User.objects.create_user(
+            email='member5@test.com', password='pass', name='Member5'
+        )
+        self.other = User.objects.create_user(
+            email='other5@test.com', password='pass', name='Other5'
+        )
+        question = OneOnOneQuestion.objects.filter(is_active=True).first()
+        self.session = OneOnOneSession.objects.create(
+            member=self.member, interviewer=self.admin,
+            conducted_at=date(2026, 5, 18)
+        )
+        OneOnOneAnswer.objects.create(session=self.session, question=question, text='回答')
+
+    def test_member_list_returns_200(self):
+        self.client.login(email='member5@test.com', password='pass')
+        response = self.client.get('/oneone/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_member_list_shows_own_sessions(self):
+        self.client.login(email='member5@test.com', password='pass')
+        response = self.client.get('/oneone/')
+        self.assertContains(response, '2026-05-18')
+
+    def test_member_list_requires_login(self):
+        response = self.client.get('/oneone/')
+        self.assertRedirects(response, '/login/?next=/oneone/')
+
+    def test_member_detail_returns_200_for_own(self):
+        self.client.login(email='member5@test.com', password='pass')
+        response = self.client.get(f'/oneone/{self.session.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_member_detail_returns_403_for_others(self):
+        self.client.login(email='other5@test.com', password='pass')
+        response = self.client.get(f'/oneone/{self.session.id}/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_member_detail_shows_answers(self):
+        self.client.login(email='member5@test.com', password='pass')
+        response = self.client.get(f'/oneone/{self.session.id}/')
+        self.assertContains(response, '回答')

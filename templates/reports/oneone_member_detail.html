@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}1on1 詳細 - 週報システム{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="mb-1">1on1 記録</h4>
+    <small class="text-secondary">{{ session.conducted_at|date:"Y-m-d" }} ／ 担当: {{ session.interviewer.name }}</small>
+  </div>
+  <a href="{% url 'oneone_member_list' %}" class="btn btn-sm btn-outline-secondary">← 一覧に戻る</a>
+</div>
+
+{% for section_key, answers in sections.items %}
+<div class="mb-4">
+  <h6 class="text-warning">■ {{ section_key.0 }}. {{ section_key.1 }}</h6>
+  {% for answer in answers %}
+  <div class="mb-3">
+    <div class="text-secondary small mb-1">
+      {{ answer.question.question_text }}
+      {% if answer.question.hint_text %}
+        <span class="ms-2 opacity-50">（{{ answer.question.hint_text }}）</span>
+      {% endif %}
+    </div>
+    <div class="border border-secondary rounded p-2 text-light" style="background:#1a1a2e;min-height:2.5rem">
+      {{ answer.text|default:"—" }}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endfor %}
+{% endblock %}

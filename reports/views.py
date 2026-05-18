@@ -197,13 +197,31 @@ def report_readonly_view(request, week_start_str):
 
 @login_required
 def oneone_member_list_view(request):
-    # Implemented in Task 8
-    from django.http import HttpResponse
-    return HttpResponse('Not yet implemented', status=501)
+    from .models import OneOnOneSession
+    sessions = OneOnOneSession.objects.filter(
+        member=request.user
+    ).select_related('interviewer').order_by('-conducted_at')
+    return render(request, 'reports/oneone_member_list.html', {'sessions': sessions})
 
 
 @login_required
 def oneone_member_detail_view(request, session_id):
-    # Implemented in Task 8
-    from django.http import HttpResponse
-    return HttpResponse('Not yet implemented', status=501)
+    from .models import OneOnOneSession
+    session = get_object_or_404(OneOnOneSession, id=session_id)
+    if session.member != request.user:
+        from django.http import HttpResponseForbidden
+        return HttpResponseForbidden('アクセス権限がありません')
+
+    answers = session.answers.select_related('question').order_by(
+        'question__section_number', 'question__order'
+    )
+    sections = {}
+    for answer in answers:
+        q = answer.question
+        key = (q.section_number, q.section_title)
+        sections.setdefault(key, []).append(answer)
+
+    return render(request, 'reports/oneone_member_detail.html', {
+        'session': session,
+        'sections': sections,
+    })
