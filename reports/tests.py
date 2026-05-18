@@ -287,3 +287,24 @@ class MemberOneOnOneViewTest(TestCase):
         self.client.login(email='member5@test.com', password='pass')
         response = self.client.get(f'/oneone/{self.session.id}/')
         self.assertContains(response, '回答')
+
+
+class NavigationTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin6@test.com', password='pass', name='Admin6', is_admin=True
+        )
+        self.member = User.objects.create_user(
+            email='member6@test.com', password='pass', name='Member6'
+        )
+
+    def test_admin_nav_has_oneone_link(self):
+        self.client.login(email='admin6@test.com', password='pass')
+        response = self.client.get('/mgmt/status/')
+        self.assertContains(response, 'admin_oneone_list')
+
+    def test_home_has_oneone_link_for_member(self):
+        self.client.login(email='member6@test.com', password='pass')
+        response = self.client.get('/')
+        self.assertContains(response, 'oneone_member_list')

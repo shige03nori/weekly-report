@@ -35,6 +35,8 @@
      href="{% url 'admin_questions' %}">質問管理</a>
   <a class="nav-link {% if request.resolver_match.url_name == 'admin_users' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
      href="{% url 'admin_users' %}">ユーザー管理</a>
+  <a class="nav-link {% if request.resolver_match.url_name == 'admin_oneone_list' or request.resolver_match.url_name == 'admin_oneone_new' or request.resolver_match.url_name == 'admin_oneone_detail' or request.resolver_match.url_name == 'admin_oneone_member' or request.resolver_match.url_name == 'admin_oneone_questions' %}active bg-primary{% else %}text-secondary border border-secondary{% endif %}"
+     href="{% url 'admin_oneone_list' %}" data-url-name="admin_oneone_list">1on1</a>
 </nav>
 {% block admin_content %}{% endblock %}
 </div>
