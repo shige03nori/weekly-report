@@ -143,7 +143,8 @@ class OneOnOneSession(models.Model):
     )
     interviewer = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name='oneone_interviews',
         verbose_name='担当管理者',
     )
