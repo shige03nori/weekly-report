@@ -1,0 +1,41 @@
+{% extends 'reports/admin_base.html' %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="mb-1">{{ session.member.name }} の1on1</h4>
+    <small class="text-secondary">{{ session.conducted_at|date:"Y-m-d" }} ／ 担当: {{ session.interviewer.name }}</small>
+  </div>
+  <a href="{% url 'admin_oneone_member' user_id=session.member.id %}" class="btn btn-sm btn-outline-secondary">← 履歴一覧</a>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-success alert-dismissible py-2">{{ message }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+  {% endfor %}
+{% endif %}
+
+<form method="post">
+  {% csrf_token %}
+  {% for section_key, answers in sections.items %}
+  <div class="mb-4">
+    <h6 class="text-warning">■ {{ section_key.0 }}. {{ section_key.1 }}</h6>
+    {% for answer in answers %}
+    <div class="mb-3">
+      <label class="form-label text-light">
+        {{ answer.question.question_text }}
+        {% if answer.question.hint_text %}
+          <span class="text-secondary small ms-2">（{{ answer.question.hint_text }}）</span>
+        {% endif %}
+      </label>
+      <textarea
+        name="answer_{{ answer.id }}"
+        class="form-control bg-dark text-light border-secondary"
+        rows="3"
+      >{{ answer.text }}</textarea>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+  <button type="submit" class="btn btn-primary">保存</button>
+</form>
+{% endblock %}

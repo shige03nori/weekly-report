@@ -391,6 +391,30 @@ def admin_oneone_questions_view(request):
 
 @admin_required
 def admin_oneone_detail_view(request, session_id):
-    # Implemented in Task 7
-    from django.http import HttpResponse
-    return HttpResponse('Not yet implemented')
+    from .models import OneOnOneSession
+    from django.shortcuts import get_object_or_404
+
+    session = get_object_or_404(OneOnOneSession, id=session_id)
+
+    if request.method == 'POST':
+        for answer in session.answers.select_related('question').all():
+            key = f'answer_{answer.id}'
+            if key in request.POST:
+                answer.text = request.POST[key]
+                answer.save()
+        messages.success(request, '記録を更新しました')
+        return redirect('admin_oneone_detail', session_id=session_id)
+
+    answers = session.answers.select_related('question').order_by(
+        'question__section_number', 'question__order'
+    )
+    sections = {}
+    for answer in answers:
+        q = answer.question
+        key = (q.section_number, q.section_title)
+        sections.setdefault(key, []).append(answer)
+
+    return render(request, 'reports/admin_oneone_detail.html', {
+        'session': session,
+        'sections': sections,
+    })

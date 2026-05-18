@@ -197,3 +197,44 @@ class AdminOneOnOneNewViewTest(TestCase):
         })
         session = OneOnOneSession.objects.first()
         self.assertRedirects(response, f'/mgmt/oneone/{session.id}/')
+
+
+class AdminOneOnOneDetailViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin4@test.com', password='pass', name='Admin4', is_admin=True
+        )
+        self.member = User.objects.create_user(
+            email='member4@test.com', password='pass', name='Member4'
+        )
+        self.question = OneOnOneQuestion.objects.filter(is_active=True).first()
+        self.session = OneOnOneSession.objects.create(
+            member=self.member, interviewer=self.admin,
+            conducted_at=date(2026, 5, 18)
+        )
+        self.answer = OneOnOneAnswer.objects.create(
+            session=self.session, question=self.question, text=''
+        )
+        self.client.login(email='admin4@test.com', password='pass')
+
+    def test_detail_view_returns_200(self):
+        response = self.client.get(f'/mgmt/oneone/{self.session.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_detail_view_shows_question(self):
+        response = self.client.get(f'/mgmt/oneone/{self.session.id}/')
+        self.assertContains(response, self.question.question_text)
+
+    def test_detail_view_post_updates_answer(self):
+        self.client.post(f'/mgmt/oneone/{self.session.id}/', {
+            f'answer_{self.answer.id}': '更新されたテキスト',
+        })
+        self.answer.refresh_from_db()
+        self.assertEqual(self.answer.text, '更新されたテキスト')
+
+    def test_detail_view_post_redirects(self):
+        response = self.client.post(f'/mgmt/oneone/{self.session.id}/', {
+            f'answer_{self.answer.id}': 'テキスト',
+        })
+        self.assertRedirects(response, f'/mgmt/oneone/{self.session.id}/')
