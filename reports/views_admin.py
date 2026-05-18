@@ -374,6 +374,13 @@ def admin_oneone_questions_view(request):
             q = get_object_or_404(OneOnOneQuestion, id=question_id)
             q.is_active = not q.is_active
             q.save()
+        elif action == 'reorder':
+            from django.http import JsonResponse
+            question_ids = request.POST.get('question_ids', '')
+            id_list = [x.strip() for x in question_ids.split(',') if x.strip().isdigit()]
+            for index, qid in enumerate(id_list):
+                OneOnOneQuestion.objects.filter(id=int(qid)).update(order=index + 1)
+            return JsonResponse({'status': 'ok'})
         return redirect('admin_oneone_questions')
 
     form = OneOnOneQuestionForm()

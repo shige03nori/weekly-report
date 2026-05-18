@@ -289,6 +289,46 @@ class MemberOneOnOneViewTest(TestCase):
         self.assertContains(response, '回答')
 
 
+class AdminOneOnOneReorderTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='adminR@test.com', password='pass', name='AdminR', is_admin=True
+        )
+        self.client.login(email='adminR@test.com', password='pass')
+        self.q1 = OneOnOneQuestion.objects.filter(section_number=1, order=1).first()
+        self.q2 = OneOnOneQuestion.objects.filter(section_number=1, order=2).first()
+        self.q3 = OneOnOneQuestion.objects.filter(section_number=1, order=3).first()
+
+    def test_reorder_updates_order(self):
+        response = self.client.post('/mgmt/oneone/questions/', {
+            'action': 'reorder',
+            'question_ids': f'{self.q3.id},{self.q1.id},{self.q2.id}',
+        })
+        self.assertEqual(response.status_code, 200)
+        import json
+        data = json.loads(response.content)
+        self.assertEqual(data['status'], 'ok')
+        self.q3.refresh_from_db()
+        self.q1.refresh_from_db()
+        self.q2.refresh_from_db()
+        self.assertEqual(self.q3.order, 1)
+        self.assertEqual(self.q1.order, 2)
+        self.assertEqual(self.q2.order, 3)
+
+    def test_reorder_requires_admin(self):
+        self.client.logout()
+        User.objects.create_user(
+            email='memberR@test.com', password='pass', name='MemberR'
+        )
+        self.client.login(email='memberR@test.com', password='pass')
+        response = self.client.post('/mgmt/oneone/questions/', {
+            'action': 'reorder',
+            'question_ids': f'{self.q1.id},{self.q2.id}',
+        })
+        self.assertEqual(response.status_code, 403)
+
+
 class NavigationTest(TestCase):
     def setUp(self):
         self.client = Client()

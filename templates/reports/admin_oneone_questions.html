@@ -9,9 +9,10 @@
 <div class="mb-4">
   <h6 class="text-warning">■ {{ section_key.0 }}. {{ section_key.1 }}</h6>
   <table class="table table-sm">
-    <tbody>
+    <tbody id="sortable-{{ section_key.0 }}">
       {% for q in items %}
-      <tr class="{% if not q.is_active %}opacity-50{% endif %}">
+      <tr class="{% if not q.is_active %}opacity-50{% endif %}" data-question-id="{{ q.id }}">
+        <td class="drag-handle" style="cursor:grab;color:#555;width:20px;user-select:none">⠿</td>
         <td>{{ q.question_text }}</td>
         <td class="text-secondary small">{{ q.hint_text }}</td>
         <td class="text-end">
@@ -54,4 +55,28 @@
     <button type="submit" class="btn btn-primary">追加</button>
   </div>
 </form>
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1/Sortable.min.js"></script>
+<script>
+(function () {
+  var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  document.querySelectorAll('[id^="sortable-"]').forEach(function (tbody) {
+    Sortable.create(tbody, {
+      handle: '.drag-handle',
+      animation: 150,
+      onEnd: function () {
+        var ids = Array.from(tbody.querySelectorAll('tr')).map(function (tr) {
+          return tr.dataset.questionId;
+        });
+        var body = new URLSearchParams();
+        body.append('action', 'reorder');
+        body.append('question_ids', ids.join(','));
+        body.append('csrfmiddlewaretoken', csrfToken);
+        fetch('', { method: 'POST', body: body });
+      }
+    });
+  });
+}());
+</script>
 {% endblock %}
