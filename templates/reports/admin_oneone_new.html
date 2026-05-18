@@ -1,0 +1,25 @@
+{% extends 'reports/admin_base.html' %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="mb-0">新規 1on1 記録</h4>
+  <a href="{% url 'admin_oneone_list' %}" class="btn btn-sm btn-outline-secondary">← 一覧に戻る</a>
+</div>
+
+<form method="post" class="row g-3" style="max-width:600px">
+  {% csrf_token %}
+  <div class="col-md-6">
+    <label class="form-label">メンバー</label>
+    {{ form.member }}
+    {% if form.member.errors %}<div class="text-danger small">{{ form.member.errors }}</div>{% endif %}
+  </div>
+  <div class="col-md-6">
+    <label class="form-label">実施日</label>
+    {{ form.conducted_at }}
+    {% if form.conducted_at.errors %}<div class="text-danger small">{{ form.conducted_at.errors }}</div>{% endif %}
+  </div>
+  <div class="col-12">
+    <p class="text-secondary small mb-1">担当管理者: {{ request.user.name }}（ログイン中）</p>
+    <button type="submit" class="btn btn-primary">記録を開始する</button>
+  </div>
+</form>
+{% endblock %}

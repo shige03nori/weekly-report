@@ -329,9 +329,25 @@ def admin_oneone_member_view(request, user_id):
 
 @admin_required
 def admin_oneone_new_view(request):
-    # Implemented in Task 6
-    from django.http import HttpResponse
-    return HttpResponse('Not yet implemented', status=501)
+    from .models import OneOnOneQuestion, OneOnOneSession, OneOnOneAnswer
+    from .forms_admin import OneOnOneSessionForm
+
+    if request.method == 'POST':
+        form = OneOnOneSessionForm(request.POST)
+        if form.is_valid():
+            session = form.save(commit=False)
+            session.interviewer = request.user
+            session.save()
+            active_questions = OneOnOneQuestion.objects.filter(is_active=True)
+            OneOnOneAnswer.objects.bulk_create([
+                OneOnOneAnswer(session=session, question=q, text='')
+                for q in active_questions
+            ])
+            return redirect('admin_oneone_detail', session_id=session.id)
+    else:
+        form = OneOnOneSessionForm()
+
+    return render(request, 'reports/admin_oneone_new.html', {'form': form})
 
 
 @admin_required
@@ -377,4 +393,4 @@ def admin_oneone_questions_view(request):
 def admin_oneone_detail_view(request, session_id):
     # Implemented in Task 7
     from django.http import HttpResponse
-    return HttpResponse('Not yet implemented', status=501)
+    return HttpResponse('Not yet implemented')

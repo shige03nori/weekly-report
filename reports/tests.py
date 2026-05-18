@@ -154,3 +154,46 @@ class AdminOneOnOneQuestionsViewTest(TestCase):
         })
         q.refresh_from_db()
         self.assertFalse(q.is_active)
+
+
+class AdminOneOnOneNewViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin3@test.com', password='pass', name='Admin3', is_admin=True
+        )
+        self.member = User.objects.create_user(
+            email='member3@test.com', password='pass', name='Member3'
+        )
+        self.client.login(email='admin3@test.com', password='pass')
+
+    def test_new_view_get_returns_200(self):
+        response = self.client.get('/mgmt/oneone/new/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_new_view_post_creates_session(self):
+        response = self.client.post('/mgmt/oneone/new/', {
+            'member': self.member.id,
+            'conducted_at': '2026-05-18',
+        })
+        self.assertEqual(OneOnOneSession.objects.count(), 1)
+        session = OneOnOneSession.objects.first()
+        self.assertEqual(session.interviewer, self.admin)
+        self.assertEqual(str(session.conducted_at), '2026-05-18')
+
+    def test_new_view_post_creates_answers_for_active_questions(self):
+        active_count = OneOnOneQuestion.objects.filter(is_active=True).count()
+        self.client.post('/mgmt/oneone/new/', {
+            'member': self.member.id,
+            'conducted_at': '2026-05-18',
+        })
+        session = OneOnOneSession.objects.first()
+        self.assertEqual(OneOnOneAnswer.objects.filter(session=session).count(), active_count)
+
+    def test_new_view_post_redirects_to_detail(self):
+        response = self.client.post('/mgmt/oneone/new/', {
+            'member': self.member.id,
+            'conducted_at': '2026-05-18',
+        })
+        session = OneOnOneSession.objects.first()
+        self.assertRedirects(response, f'/mgmt/oneone/{session.id}/')
