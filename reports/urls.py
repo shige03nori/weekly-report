@@ -14,4 +14,13 @@ urlpatterns = [
     path('mgmt/users/<int:user_id>/edit/', views_admin.admin_edit_user_view, name='admin_edit_user'),
     path('mgmt/monthly/', views_admin.admin_monthly_view, name='admin_monthly'),
     path('mgmt/yearly/', views_admin.admin_yearly_view, name='admin_yearly'),
+    # 管理者向け 1on1
+    path('mgmt/oneone/', views_admin.admin_oneone_list_view, name='admin_oneone_list'),
+    path('mgmt/oneone/new/', views_admin.admin_oneone_new_view, name='admin_oneone_new'),
+    path('mgmt/oneone/questions/', views_admin.admin_oneone_questions_view, name='admin_oneone_questions'),
+    path('mgmt/oneone/member/<int:user_id>/', views_admin.admin_oneone_member_view, name='admin_oneone_member'),
+    path('mgmt/oneone/<int:session_id>/', views_admin.admin_oneone_detail_view, name='admin_oneone_detail'),
+    # メンバー向け 1on1
+    path('oneone/', views.oneone_member_list_view, name='oneone_member_list'),
+    path('oneone/<int:session_id>/', views.oneone_member_detail_view, name='oneone_member_detail'),
 ]
