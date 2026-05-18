@@ -25,7 +25,7 @@ def admin_status_view(request):
     selected_week = date.fromisoformat(week_str) if week_str else get_week_start(get_today())
     selected_dept = request.GET.get('department', '')
 
-    all_users = User.objects.filter(is_active=True, is_admin=False).order_by('name')
+    all_users = User.objects.filter(is_active=True).order_by('name')
     departments = sorted(set(all_users.values_list('department', flat=True)))
     if selected_dept:
         all_users = all_users.filter(department=selected_dept)
@@ -62,7 +62,7 @@ def admin_summary_view(request):
     selected_dept = request.GET.get('department', '')
 
     current_week = get_week_start(today)
-    all_users = User.objects.filter(is_active=True, is_admin=False).order_by('name')
+    all_users = User.objects.filter(is_active=True).order_by('name')
     departments = sorted(set(all_users.values_list('department', flat=True)))
     if selected_dept:
         all_users = all_users.filter(department=selected_dept)
@@ -198,7 +198,7 @@ def admin_monthly_view(request):
         week_start += timedelta(weeks=1)
 
     selected_dept = request.GET.get('department', '')
-    users = User.objects.filter(is_active=True, is_admin=False).order_by('name')
+    users = User.objects.filter(is_active=True).order_by('name')
     departments = sorted(set(users.values_list('department', flat=True)))
     if selected_dept:
         users = users.filter(department=selected_dept)
@@ -254,7 +254,7 @@ def admin_yearly_view(request):
         month_groups.setdefault(m, []).append(w)
 
     selected_dept = request.GET.get('department', '')
-    users = User.objects.filter(is_active=True, is_admin=False).order_by('name')
+    users = User.objects.filter(is_active=True).order_by('name')
     departments = sorted(set(users.values_list('department', flat=True)))
     if selected_dept:
         users = users.filter(department=selected_dept)
@@ -283,3 +283,66 @@ def admin_yearly_view(request):
         'departments': departments,
         'selected_dept': selected_dept,
     })
+
+
+@admin_required
+def admin_oneone_list_view(request):
+    from .models import OneOnOneSession
+    selected_dept = request.GET.get('department', '')
+    all_users = User.objects.filter(is_active=True).order_by('name')
+    departments = sorted(set(all_users.values_list('department', flat=True)))
+    if selected_dept:
+        all_users = all_users.filter(department=selected_dept)
+
+    users_data = []
+    for user in all_users:
+        last_session = (
+            OneOnOneSession.objects.filter(member=user)
+            .order_by('-conducted_at')
+            .first()
+        )
+        count = OneOnOneSession.objects.filter(member=user).count()
+        users_data.append({
+            'user': user,
+            'last_session': last_session,
+            'count': count,
+        })
+
+    return render(request, 'reports/admin_oneone_list.html', {
+        'users_data': users_data,
+        'departments': departments,
+        'selected_dept': selected_dept,
+    })
+
+
+@admin_required
+def admin_oneone_member_view(request, user_id):
+    from .models import OneOnOneSession
+    from django.shortcuts import get_object_or_404
+    target_user = get_object_or_404(User, id=user_id)
+    sessions = OneOnOneSession.objects.filter(member=target_user).order_by('-conducted_at')
+    return render(request, 'reports/admin_oneone_member.html', {
+        'target_user': target_user,
+        'sessions': sessions,
+    })
+
+
+@admin_required
+def admin_oneone_new_view(request):
+    # Implemented in Task 6
+    from django.http import HttpResponse
+    return HttpResponse('Not yet implemented', status=501)
+
+
+@admin_required
+def admin_oneone_questions_view(request):
+    # Implemented in Task 5
+    from django.http import HttpResponse
+    return HttpResponse('Not yet implemented', status=501)
+
+
+@admin_required
+def admin_oneone_detail_view(request, session_id):
+    # Implemented in Task 7
+    from django.http import HttpResponse
+    return HttpResponse('Not yet implemented', status=501)

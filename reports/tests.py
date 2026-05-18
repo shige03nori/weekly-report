@@ -1,5 +1,5 @@
 from datetime import date
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.contrib.auth import get_user_model
 from django.db.models import ProtectedError
 from .models import OneOnOneQuestion, OneOnOneSession, OneOnOneAnswer
@@ -76,3 +76,43 @@ class OneOnOneInitialDataTest(TestCase):
 
     def test_section6_has_3_questions(self):
         self.assertEqual(OneOnOneQuestion.objects.filter(section_number=6).count(), 3)
+
+
+class AdminOneOnOneListViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin@test.com', password='pass', name='Admin', is_admin=True
+        )
+        self.member = User.objects.create_user(
+            email='member@test.com', password='pass', name='Member'
+        )
+        self.client.login(email='admin@test.com', password='pass')
+
+    def test_list_view_returns_200(self):
+        response = self.client.get('/mgmt/oneone/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_list_view_shows_all_active_users(self):
+        response = self.client.get('/mgmt/oneone/')
+        self.assertContains(response, 'Member')
+        self.assertContains(response, 'Admin')
+
+    def test_list_view_requires_admin(self):
+        self.client.logout()
+        self.client.login(email='member@test.com', password='pass')
+        response = self.client.get('/mgmt/oneone/')
+        self.assertEqual(response.status_code, 403)
+
+    def test_member_history_view_returns_200(self):
+        response = self.client.get(f'/mgmt/oneone/member/{self.member.id}/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_member_history_shows_sessions(self):
+        q = OneOnOneQuestion.objects.filter(is_active=True).first()
+        session = OneOnOneSession.objects.create(
+            member=self.member, interviewer=self.admin,
+            conducted_at=date(2026, 5, 18)
+        )
+        response = self.client.get(f'/mgmt/oneone/member/{self.member.id}/')
+        self.assertContains(response, '2026-05-18')

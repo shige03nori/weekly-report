@@ -1,0 +1,52 @@
+{% extends 'reports/admin_base.html' %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">1on1 管理</h4>
+  <div class="d-flex gap-2">
+    <a href="{% url 'admin_oneone_questions' %}" class="btn btn-sm btn-outline-secondary">質問管理</a>
+    <a href="{% url 'admin_oneone_new' %}" class="btn btn-sm btn-primary">＋ 新規 1on1 記録</a>
+  </div>
+</div>
+
+<form method="get" class="mb-3">
+  {% include 'reports/_dept_filter.html' %}
+  <button type="submit" class="btn btn-sm btn-outline-secondary ms-2">絞り込み</button>
+</form>
+
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>メンバー</th>
+      <th>部署</th>
+      <th>最終実施日</th>
+      <th>実施回数</th>
+      <th>担当管理者</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for item in users_data %}
+    <tr>
+      <td>
+        {% if item.count %}
+          <a href="{% url 'admin_oneone_member' user_id=item.user.id %}">{{ item.user.name }}</a>
+        {% else %}
+          {{ item.user.name }}
+        {% endif %}
+      </td>
+      <td class="text-secondary">{{ item.user.department|default:"—" }}</td>
+      <td>
+        {% if item.last_session %}
+          {{ item.last_session.conducted_at|date:"Y-m-d" }}
+        {% else %}
+          <span class="text-danger">—（未実施）</span>
+        {% endif %}
+      </td>
+      <td>{{ item.count }}回</td>
+      <td class="text-secondary">
+        {% if item.last_session %}{{ item.last_session.interviewer.name }}{% else %}—{% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

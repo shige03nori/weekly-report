@@ -193,3 +193,17 @@ def report_readonly_view(request, week_start_str):
         'sections': sections,
         'current_answers': current_answers,
     })
+
+
+@login_required
+def oneone_member_list_view(request):
+    # Implemented in Task 8
+    from django.http import HttpResponse
+    return HttpResponse('Not yet implemented', status=501)
+
+
+@login_required
+def oneone_member_detail_view(request, session_id):
+    # Implemented in Task 8
+    from django.http import HttpResponse
+    return HttpResponse('Not yet implemented', status=501)
