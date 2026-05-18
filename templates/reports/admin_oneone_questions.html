@@ -1,0 +1,57 @@
+{% extends 'reports/admin_base.html' %}
+{% block admin_content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h4 class="mb-0">1on1 質問管理</h4>
+  <a href="{% url 'admin_oneone_list' %}" class="btn btn-sm btn-outline-secondary">← 1on1一覧</a>
+</div>
+
+{% for section_key, items in sections.items %}
+<div class="mb-4">
+  <h6 class="text-warning">■ {{ section_key.0 }}. {{ section_key.1 }}</h6>
+  <table class="table table-sm">
+    <tbody>
+      {% for q in items %}
+      <tr class="{% if not q.is_active %}opacity-50{% endif %}">
+        <td>{{ q.question_text }}</td>
+        <td class="text-secondary small">{{ q.hint_text }}</td>
+        <td class="text-end">
+          <form method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="toggle">
+            <input type="hidden" name="question_id" value="{{ q.id }}">
+            {% if q.is_active %}
+              <button type="submit" class="btn btn-sm btn-outline-secondary">無効化</button>
+            {% else %}
+              <button type="submit" class="btn btn-sm btn-outline-success">有効化</button>
+            {% endif %}
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endfor %}
+
+<hr>
+<h5>＋ 質問を追加</h5>
+<form method="post" class="row g-2 align-items-end">
+  {% csrf_token %}
+  <input type="hidden" name="action" value="add">
+  <div class="col-auto">
+    <label class="form-label small">セクション番号</label>
+    {{ form.section_number }}
+  </div>
+  <div class="col-4">
+    <label class="form-label small">質問文</label>
+    {{ form.question_text }}
+  </div>
+  <div class="col-4">
+    <label class="form-label small">補足テキスト（任意）</label>
+    {{ form.hint_text }}
+  </div>
+  <div class="col-auto">
+    <button type="submit" class="btn btn-primary">追加</button>
+  </div>
+</form>
+{% endblock %}

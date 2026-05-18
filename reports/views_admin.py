@@ -336,9 +336,41 @@ def admin_oneone_new_view(request):
 
 @admin_required
 def admin_oneone_questions_view(request):
-    # Implemented in Task 5
-    from django.http import HttpResponse
-    return HttpResponse('Not yet implemented', status=501)
+    from .models import OneOnOneQuestion
+    from .forms_admin import OneOnOneQuestionForm
+    from django.shortcuts import get_object_or_404
+    from django.db.models import Max
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'add':
+            form = OneOnOneQuestionForm(request.POST)
+            if form.is_valid():
+                q = form.save(commit=False)
+                q.section_title = form.get_section_title()
+                max_order = OneOnOneQuestion.objects.filter(
+                    section_number=q.section_number
+                ).aggregate(Max('order'))['order__max'] or 0
+                q.order = max_order + 1
+                q.save()
+        elif action == 'toggle':
+            question_id = request.POST.get('question_id')
+            q = get_object_or_404(OneOnOneQuestion, id=question_id)
+            q.is_active = not q.is_active
+            q.save()
+        return redirect('admin_oneone_questions')
+
+    form = OneOnOneQuestionForm()
+    questions = OneOnOneQuestion.objects.order_by('section_number', 'order')
+    sections = {}
+    for q in questions:
+        key = (q.section_number, q.section_title)
+        sections.setdefault(key, []).append(q)
+
+    return render(request, 'reports/admin_oneone_questions.html', {
+        'sections': sections,
+        'form': form,
+    })
 
 
 @admin_required

@@ -116,3 +116,41 @@ class AdminOneOnOneListViewTest(TestCase):
         )
         response = self.client.get(f'/mgmt/oneone/member/{self.member.id}/')
         self.assertContains(response, '2026-05-18')
+
+
+class AdminOneOnOneQuestionsViewTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            email='admin2@test.com', password='pass', name='Admin2', is_admin=True
+        )
+        self.client.login(email='admin2@test.com', password='pass')
+
+    def test_questions_view_returns_200(self):
+        response = self.client.get('/mgmt/oneone/questions/')
+        self.assertEqual(response.status_code, 200)
+
+    def test_questions_view_shows_initial_data(self):
+        response = self.client.get('/mgmt/oneone/questions/')
+        self.assertContains(response, '最近の業務はどう？')
+
+    def test_add_question(self):
+        count_before = OneOnOneQuestion.objects.count()
+        self.client.post('/mgmt/oneone/questions/', {
+            'action': 'add',
+            'section_number': 1,
+            'question_text': 'テスト質問',
+            'hint_text': '',
+        })
+        self.assertEqual(OneOnOneQuestion.objects.count(), count_before + 1)
+        new_q = OneOnOneQuestion.objects.get(question_text='テスト質問')
+        self.assertTrue(new_q.is_active)
+
+    def test_toggle_question(self):
+        q = OneOnOneQuestion.objects.filter(section_number=1).first()
+        self.client.post('/mgmt/oneone/questions/', {
+            'action': 'toggle',
+            'question_id': q.id,
+        })
+        q.refresh_from_db()
+        self.assertFalse(q.is_active)
